@@ -7,10 +7,21 @@ import java.util.Scanner;
 
 class Client implements Runnable {
     Socket socket;
+    Scanner in;
+    PrintStream out;
+    Server server;
+    String name;
 
-    public Client(Socket socket){
+    public Client(Socket socket, Server server){
 
         this.socket = socket;
+        this.server = server;
+        // запускаем поток
+        new Thread(this).start();
+    }
+
+    void receive(String message){
+        out.println(message);
     }
 
     public void run() {
@@ -20,15 +31,18 @@ class Client implements Runnable {
             OutputStream os = socket.getOutputStream();
 
             // создаем удобные средства ввода и вывода
-            Scanner in = new Scanner(is);
-            PrintStream out = new PrintStream(os);
+            in = new Scanner(is);
+            out = new PrintStream(os);
 
             // читаем из сети и пишем в сеть
-            out.println("Welcome to mountains!");
+            out.println("Welcome to Chat!");
+            out.println("Enter your name:");
             String input = in.nextLine();
+            name = input;
+            out.println("Name saved: " + name + "\nYou can start chatting.");
+            input = in.nextLine();
             while (!input.equals("bye")) {
-                out.println(input + "-" + input + "-" +
-                        input.substring(input.length() / 2) + "...");
+                server.sendAll(name + ": " + input);
                 input = in.nextLine();
             }
             socket.close();
