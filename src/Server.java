@@ -1,12 +1,16 @@
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class Server {
 
     ArrayList<Client> clients = new ArrayList<>();
     ServerSocket serverSocket;
+    //Добавляем время
+    SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
     Server() throws IOException {
         // создаем серверный сокет на порту 1234
@@ -16,13 +20,14 @@ public class Server {
     void sendAll (String message){
         for (Client client :
                 clients) {
-            client.receive(message);
+            client.receive(dateFormat.format(Calendar.getInstance().getTime()) + " " + message);
         }
     }
-
+//
     public void run(){
         while(true) {
             System.out.println("Waiting...");
+
             try {
                 // ждем клиента из сети
                 Socket socket = serverSocket.accept();
